@@ -7,8 +7,6 @@ import {
   Put,
   Delete,
   NotFoundException,
-  UsePipes,
-  ValidationPipe,
   ParseUUIDPipe,
 } from '@nestjs/common';
 
@@ -20,7 +18,6 @@ import { AccountBalanceDto } from './dto/account-balance.dto';
 import { plainToClass } from 'class-transformer';
 
 @Controller('accounts')
-@UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
 export class AccountsController {
   constructor(private readonly accountsService: AccountsService) {}
 
