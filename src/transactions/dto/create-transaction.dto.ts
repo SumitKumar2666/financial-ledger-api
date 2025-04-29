@@ -8,7 +8,7 @@ import {
   Length,
   ValidateNested,
 } from 'class-validator';
-import { CreateEntryDto } from '../../entries/dto/create-entry.dto';
+import { TransactionEntryDto } from './transaction-entry.dto';
 
 export class CreateTransactionDto {
   @IsNotEmpty()
@@ -27,6 +27,6 @@ export class CreateTransactionDto {
 
   @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => CreateEntryDto)
-  entries: CreateEntryDto[];
+  @Type(() => TransactionEntryDto)
+  entries: TransactionEntryDto[];
 }
