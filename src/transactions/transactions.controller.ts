@@ -7,8 +7,6 @@ import {
   Query,
   NotFoundException,
   BadRequestException,
-  UsePipes,
-  ValidationPipe,
   ParseUUIDPipe,
 } from '@nestjs/common';
 
@@ -18,7 +16,6 @@ import { TransactionFilterDto } from './dto/transaction-filter.dto';
 import { Transaction } from './entities/transaction.entity';
 
 @Controller('transactions')
-@UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
 export class TransactionsController {
   constructor(private readonly transactionsService: TransactionsService) {}
 
