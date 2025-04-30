@@ -23,8 +23,15 @@ export class TransactionsController {
 
   @Post()
   @ApiOperation({ summary: 'Create a transaction with entries' })
-  @ApiResponse({ status: 201, description: 'Transaction created successfully', type: Transaction })
-  @ApiResponse({ status: 400, description: 'Invalid transaction or unbalanced entries' })
+  @ApiResponse({
+    status: 201,
+    description: 'Transaction created successfully',
+    type: Transaction,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid transaction or unbalanced entries',
+  })
   async create(
     @Body() createTransactionDto: CreateTransactionDto,
   ): Promise<Transaction> {
@@ -41,8 +48,14 @@ export class TransactionsController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Get a list of all transactions (optional filters)' })
-  @ApiResponse({ status: 200, description: 'Returns transactions', type: [Transaction] })
+  @ApiOperation({
+    summary: 'Get a list of all transactions (optional filters)',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns transactions',
+    type: [Transaction],
+  })
   async findAll(
     @Query() filters?: TransactionFilterDto,
   ): Promise<Transaction[]> {
@@ -51,7 +64,11 @@ export class TransactionsController {
 
   @Get(':id')
   @ApiOperation({ summary: 'Get transaction by ID' })
-  @ApiResponse({ status: 200, description: 'Returns the transaction', type: Transaction })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns the transaction',
+    type: Transaction,
+  })
   @ApiResponse({ status: 404, description: 'Transaction not found' })
   async findOne(@Param('id', ParseUUIDPipe) id: string): Promise<Transaction> {
     try {
