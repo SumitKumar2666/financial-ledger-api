@@ -51,7 +51,7 @@ export class AccountsController {
       id: account.id,
       name: account.name,
       type: account.type,
-      balance: balance.toString(),
+      balance: balance.toFixed(2),
     });
   }
 
