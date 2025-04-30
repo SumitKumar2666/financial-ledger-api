@@ -16,22 +16,31 @@ import { UpdateAccountDto } from './dto/update-account.dto';
 import { Account } from './entities/account.entity';
 import { AccountBalanceDto } from './dto/account-balance.dto';
 import { plainToClass } from 'class-transformer';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Accounts')
 @Controller('accounts')
 export class AccountsController {
   constructor(private readonly accountsService: AccountsService) {}
 
   @Post()
+  @ApiOperation({ summary: 'Create a new account' })
+  @ApiResponse({ status: 201, description: 'Account created successfully', type: Account })
   async create(@Body() createAccountDto: CreateAccountDto): Promise<Account> {
     return this.accountsService.create(createAccountDto);
   }
 
   @Get()
+  @ApiOperation({ summary: 'Get a list of all accounts' })
+  @ApiResponse({ status: 200, description: 'Returns the list of accounts', type: [Account] })
   async findAll(): Promise<Account[]> {
     return this.accountsService.findAll();
   }
 
   @Get(':id/balance')
+  @ApiOperation({ summary: 'Get account balance' })
+  @ApiResponse({ status: 200, description: 'Returns the account balance', type: AccountBalanceDto })
+  @ApiResponse({ status: 404, description: 'Account not found' })
   async getBalance(
     @Param('id', ParseUUIDPipe) id: string,
   ): Promise<AccountBalanceDto> {
@@ -47,6 +56,9 @@ export class AccountsController {
   }
 
   @Get(':id')
+  @ApiOperation({ summary: 'Get account by ID' })
+  @ApiResponse({ status: 200, description: 'Returns the account', type: Account })
+  @ApiResponse({ status: 404, description: 'Account not found' })
   async findOne(@Param('id', ParseUUIDPipe) id: string): Promise<Account> {
     try {
       return await this.accountsService.findOne(id);
@@ -61,6 +73,9 @@ export class AccountsController {
   
 
   @Put(':id')
+  @ApiOperation({ summary: 'Update an account' })
+  @ApiResponse({ status: 200, description: 'Account updated successfully', type: Account })
+  @ApiResponse({ status: 404, description: 'Account not found' })
   async update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateAccountDto: UpdateAccountDto,
@@ -69,6 +84,9 @@ export class AccountsController {
   }
 
   @Delete(':id')
+  @ApiOperation({ summary: 'Delete an account' })
+  @ApiResponse({ status: 200, description: 'Account deleted successfully' })
+  @ApiResponse({ status: 404, description: 'Account not found' })
   async remove(
     @Param('id', ParseUUIDPipe) id: string,
   ): Promise<{ message: string }> {
