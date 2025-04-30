@@ -1,4 +1,8 @@
-import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Between, FindOptionsWhere } from 'typeorm';
 import Decimal from 'decimal.js';
@@ -21,15 +25,19 @@ export class TransactionsService {
 
   /**
    * Create a new transaction along with its entries.
-   * 
+   *
    * - Must have at least two entries.
    * - Total debits must equal total credits.
    */
-  async create(createTransactionDto: CreateTransactionDto): Promise<Transaction> {
+  async create(
+    createTransactionDto: CreateTransactionDto,
+  ): Promise<Transaction> {
     const { entries, ...transactionData } = createTransactionDto;
 
     if (!entries || entries.length < 2) {
-      throw new BadRequestException('A transaction must have at least two entries.');
+      throw new BadRequestException(
+        'A transaction must have at least two entries.',
+      );
     }
 
     // Ensure all referenced accounts exist
@@ -55,7 +63,9 @@ export class TransactionsService {
     }
 
     if (!totalDebits.equals(totalCredits)) {
-      throw new BadRequestException(`Debits (${totalDebits}) must equal credits (${totalCredits}).`);
+      throw new BadRequestException(
+        `Debits (${totalDebits}) must equal credits (${totalCredits}).`,
+      );
     }
 
     const transaction = this.transactionRepository.create(transactionData);
@@ -100,7 +110,9 @@ export class TransactionsService {
         .innerJoinAndSelect('transaction.entries', 'entry')
         .innerJoinAndSelect('entry.account', 'account')
         .where(where)
-        .andWhere('entry.accountId = :accountId', { accountId: filters.accountId })
+        .andWhere('entry.accountId = :accountId', {
+          accountId: filters.accountId,
+        })
         .getMany();
     }
 

@@ -19,7 +19,7 @@ describe('Ledger API (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
-    
+
     // Configure app with the same settings as in main.ts
     app.useGlobalPipes(
       new ValidationPipe({
@@ -32,7 +32,7 @@ describe('Ledger API (e2e)', () => {
       }),
     );
     app.useGlobalFilters(new HttpExceptionFilter());
-    
+
     await app.init();
   });
 
@@ -100,7 +100,7 @@ describe('Ledger API (e2e)', () => {
         .expect((res) => {
           expect(Array.isArray(res.body)).toBe(true);
           expect(res.body.length).toBeGreaterThanOrEqual(3);
-          
+
           // Verify our created accounts are in the list
           const accountIds = res.body.map((account) => account.id);
           expect(accountIds).toContain(cashAccountId);
@@ -157,7 +157,7 @@ describe('Ledger API (e2e)', () => {
           expect(res.body.description).toBe('Sales transaction');
           expect(Array.isArray(res.body.entries)).toBe(true);
           expect(res.body.entries.length).toBe(2);
-          
+
           // Store transaction ID for later tests
           transactionId = res.body.id;
         });
@@ -261,9 +261,9 @@ describe('Ledger API (e2e)', () => {
         .expect((res) => {
           expect(Array.isArray(res.body)).toBe(true);
           expect(res.body.length).toBeGreaterThanOrEqual(2);
-          
+
           // Check if our created transaction is in the list
-          const foundTransaction = res.body.find(t => t.id === transactionId);
+          const foundTransaction = res.body.find((t) => t.id === transactionId);
           expect(foundTransaction).toBeDefined();
         });
     });
@@ -275,11 +275,11 @@ describe('Ledger API (e2e)', () => {
         .expect((res) => {
           expect(Array.isArray(res.body)).toBe(true);
           expect(res.body.length).toBeGreaterThanOrEqual(2);
-          
+
           // All transactions should involve the cash account
-          res.body.forEach(transaction => {
+          res.body.forEach((transaction) => {
             const hasEntriesForCashAccount = transaction.entries.some(
-              entry => entry.accountId === cashAccountId
+              (entry) => entry.accountId === cashAccountId,
             );
             expect(hasEntriesForCashAccount).toBe(true);
           });

@@ -21,7 +21,9 @@ type MockRepository<T extends ObjectLiteral = any> = {
 };
 
 // Mock repository function to return all required methods
-const createMockRepository = <T extends ObjectLiteral>(): MockRepository<T> => ({
+const createMockRepository = <
+  T extends ObjectLiteral,
+>(): MockRepository<T> => ({
   find: jest.fn(),
   findOne: jest.fn(),
   create: jest.fn(),
@@ -82,27 +84,61 @@ describe('TransactionsService', () => {
 
   describe('create', () => {
     it('should create a balanced transaction successfully', async () => {
-      const cashAccount = { id: 'a1', name: 'Cash', type: AccountType.ASSET } as Account;
-      const revAccount = { id: 'r1', name: 'Revenue', type: AccountType.REVENUE } as Account;
+      const cashAccount = {
+        id: 'a1',
+        name: 'Cash',
+        type: AccountType.ASSET,
+      } as Account;
+      const revAccount = {
+        id: 'r1',
+        name: 'Revenue',
+        type: AccountType.REVENUE,
+      } as Account;
 
       const dto: CreateTransactionDto = {
         description: 'Sale',
         transactionDate: '2025-04-29',
         reference: 'REF1',
         entries: [
-          { accountId: cashAccount.id, amount: '100', type: EntryType.DEBIT, description: 'Cash in' },
-          { accountId: revAccount.id, amount: '100', type: EntryType.CREDIT, description: 'Sale' },
+          {
+            accountId: cashAccount.id,
+            amount: '100',
+            type: EntryType.DEBIT,
+            description: 'Cash in',
+          },
+          {
+            accountId: revAccount.id,
+            amount: '100',
+            type: EntryType.CREDIT,
+            description: 'Sale',
+          },
         ],
       };
 
-      const createdTx = { id: 't1', description: dto.description, transactionDate: new Date(dto.transactionDate), reference: dto.reference, createdAt: new Date(), updatedAt: new Date() };
+      const createdTx = {
+        id: 't1',
+        description: dto.description,
+        transactionDate: new Date(dto.transactionDate),
+        reference: dto.reference,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
       const savedEntries = dto.entries.map((e, i) => ({
-        id: `e${i}`, accountId: e.accountId, transactionId: createdTx.id, amount: new Decimal(e.amount), type: e.type, description: e.description, createdAt: new Date(), updatedAt: new Date(),
+        id: `e${i}`,
+        accountId: e.accountId,
+        transactionId: createdTx.id,
+        amount: new Decimal(e.amount),
+        type: e.type,
+        description: e.description,
+        createdAt: new Date(),
+        updatedAt: new Date(),
       }));
       const txWithEntries = { ...createdTx, entries: savedEntries };
 
       // mocks
-      accountsService.findOne.mockResolvedValueOnce(cashAccount).mockResolvedValueOnce(revAccount);
+      accountsService.findOne
+        .mockResolvedValueOnce(cashAccount)
+        .mockResolvedValueOnce(revAccount);
       repository.create.mockReturnValue(createdTx);
       repository.save.mockResolvedValue(createdTx);
       entriesService.createMany.mockResolvedValue(savedEntries);
@@ -112,9 +148,11 @@ describe('TransactionsService', () => {
 
       const result = await service.create(dto);
 
-      expect(repository.create).toHaveBeenCalledWith(expect.objectContaining({ description: dto.description }));
+      expect(repository.create).toHaveBeenCalledWith(
+        expect.objectContaining({ description: dto.description }),
+      );
       expect(repository.save).toHaveBeenCalledWith(createdTx);
-      const expectedDtos = dto.entries.map(e => ({
+      const expectedDtos = dto.entries.map((e) => ({
         ...e,
         transactionId: createdTx.id,
       }));
@@ -123,7 +161,18 @@ describe('TransactionsService', () => {
     });
 
     it('should throw if less than two entries', async () => {
-      const dto = { description: 'Bad', transactionDate: '2025-04-29', entries: [{ accountId: 'a1', amount: '50', type: EntryType.DEBIT, description: 'Only one' }] } as CreateTransactionDto;
+      const dto = {
+        description: 'Bad',
+        transactionDate: '2025-04-29',
+        entries: [
+          {
+            accountId: 'a1',
+            amount: '50',
+            type: EntryType.DEBIT,
+            description: 'Only one',
+          },
+        ],
+      } as CreateTransactionDto;
       await expect(service.create(dto)).rejects.toThrow(BadRequestException);
       expect(repository.create).not.toHaveBeenCalled();
     });
@@ -131,12 +180,28 @@ describe('TransactionsService', () => {
     it('should throw if debits ≠ credits', async () => {
       const cash = { id: 'a1', type: AccountType.ASSET } as Account;
       const rev = { id: 'r1', type: AccountType.REVENUE } as Account;
-      const dto = { description: 'Bad', transactionDate: '2025-04-29', entries: [
-        { accountId: cash.id, amount: '100', type: EntryType.DEBIT, description: '' },
-        { accountId: rev.id, amount: '90', type: EntryType.CREDIT, description: '' },
-      ] } as CreateTransactionDto;
+      const dto = {
+        description: 'Bad',
+        transactionDate: '2025-04-29',
+        entries: [
+          {
+            accountId: cash.id,
+            amount: '100',
+            type: EntryType.DEBIT,
+            description: '',
+          },
+          {
+            accountId: rev.id,
+            amount: '90',
+            type: EntryType.CREDIT,
+            description: '',
+          },
+        ],
+      } as CreateTransactionDto;
 
-      accountsService.findOne.mockResolvedValueOnce(cash).mockResolvedValueOnce(rev);
+      accountsService.findOne
+        .mockResolvedValueOnce(cash)
+        .mockResolvedValueOnce(rev);
       await expect(service.create(dto)).rejects.toThrow(BadRequestException);
       expect(repository.create).not.toHaveBeenCalled();
     });
@@ -156,14 +221,16 @@ describe('TransactionsService', () => {
       repository.find.mockResolvedValue(txs);
       const filters = { startDate: '2025-04-01', endDate: '2025-04-31' };
       const result = await service.findAll(filters as any);
-      expect(repository.find).toHaveBeenCalledWith({ 
-        where: { 
-            transactionDate: Between(
-                new Date(filters.startDate), new Date(filters.endDate)
-            ) 
-        }, 
-        relations: ['entries', 'entries.account'], 
-        order: { transactionDate: 'DESC', createdAt: 'DESC' } });
+      expect(repository.find).toHaveBeenCalledWith({
+        where: {
+          transactionDate: Between(
+            new Date(filters.startDate),
+            new Date(filters.endDate),
+          ),
+        },
+        relations: ['entries', 'entries.account'],
+        order: { transactionDate: 'DESC', createdAt: 'DESC' },
+      });
       expect(result).toEqual(txs);
     });
   });
