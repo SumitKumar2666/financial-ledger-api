@@ -33,7 +33,10 @@ export class AccountsService {
     return account;
   }
 
-  async update(id: string, updateAccountDto: UpdateAccountDto): Promise<Account> {
+  async update(
+    id: string,
+    updateAccountDto: UpdateAccountDto,
+  ): Promise<Account> {
     const account = await this.findOne(id);
 
     Object.assign(account, updateAccountDto);
@@ -50,7 +53,7 @@ export class AccountsService {
 
   /**
    * Calculate the balance for a given account using double-entry accounting rules:
-   * 
+   *
    * - For ASSET and EXPENSE accounts: DEBIT increases the balance, CREDIT decreases it.
    * - For LIABILITY, EQUITY, and REVENUE accounts: CREDIT increases the balance, DEBIT decreases it.
    */
@@ -64,7 +67,11 @@ export class AccountsService {
       .where('account.id = :id', { id })
       .getOne();
 
-    if (!accountWithEntries || !accountWithEntries.entries || accountWithEntries.entries.length === 0) {
+    if (
+      !accountWithEntries ||
+      !accountWithEntries.entries ||
+      accountWithEntries.entries.length === 0
+    ) {
       return new Decimal(0);
     }
 
@@ -73,10 +80,19 @@ export class AccountsService {
     for (const entry of accountWithEntries.entries) {
       const amount = new Decimal(entry.amount);
 
-      if (account.type === AccountType.ASSET || account.type === AccountType.EXPENSE) {
-        balance = entry.type === EntryType.DEBIT ? balance.plus(amount) : balance.minus(amount);
+      if (
+        account.type === AccountType.ASSET ||
+        account.type === AccountType.EXPENSE
+      ) {
+        balance =
+          entry.type === EntryType.DEBIT
+            ? balance.plus(amount)
+            : balance.minus(amount);
       } else {
-        balance = entry.type === EntryType.CREDIT ? balance.plus(amount) : balance.minus(amount);
+        balance =
+          entry.type === EntryType.CREDIT
+            ? balance.plus(amount)
+            : balance.minus(amount);
       }
     }
 

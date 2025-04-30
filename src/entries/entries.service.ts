@@ -29,7 +29,7 @@ export class EntriesService {
    * Create multiple entries at once.
    */
   async createMany(createEntryDtos: CreateEntryDto[]): Promise<Entry[]> {
-    const entries = createEntryDtos.map(dto =>
+    const entries = createEntryDtos.map((dto) =>
       this.entryRepository.create({
         ...dto,
         amount: new Decimal(dto.amount),
